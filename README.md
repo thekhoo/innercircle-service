@@ -1,6 +1,6 @@
-# node-express-template
+# innercircle-service
 
-A production-ready Express + TypeScript API microservice template. GitHub template — click **Use this template** to seed a new service.
+Backend API service for the [InnerCircle sweepstake UI](https://github.com/thekhoo/innercircle-ui). Manages users, events, and sweepstake data.
 
 ---
 
@@ -30,7 +30,7 @@ A production-ready Express + TypeScript API microservice template. GitHub templa
 ## Getting started
 
 ```bash
-git clone <repo-url> my-service
+git clone https://github.com/thekhoo/innercircle-service my-service
 cd my-service
 cp .env.example .env        # fill in SERVICE_NAME, UNIVERSE, etc.
 pnpm install
@@ -47,7 +47,7 @@ The server starts on `http://localhost:3002`. `pnpm dev` uses `tsx watch`, which
 docker compose up --build
 ```
 
-This starts the API on port 3002 and a local Postgres instance on port 5432. Uncomment `DATABASE_URL` in `.env` when your service adds a database.
+This starts the API on port 3002 and a local Postgres instance on port 5432. Uncomment `DATABASE_URL` in `.env` when connecting to the database.
 
 ---
 
@@ -142,8 +142,8 @@ When adding a new feature, add a matching folder under `bruno/` with requests fo
 Build and push the image to any registry:
 
 ```bash
-docker build -t my-service:latest .
-docker push <registry>/my-service:latest
+docker build -t innercircle-service:latest .
+docker push <registry>/innercircle-service:latest
 ```
 
 The image runs as the non-root `node` user, listens on port 3002, and expects all config via environment variables. Rate limiting and TLS termination belong at the edge.
