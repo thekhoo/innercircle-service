@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM node:24-slim AS build
+FROM node:25-slim AS build
 WORKDIR /app
 ENV HUSKY=0
 RUN corepack enable
@@ -10,7 +10,7 @@ COPY src ./src
 RUN pnpm build
 RUN pnpm prune --prod --ignore-scripts
 
-FROM node:24-slim AS runtime
+FROM node:25-slim AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 COPY --from=build /app/node_modules ./node_modules
