@@ -2,6 +2,14 @@
 
 Conventions and rules for Claude Code sessions in services built from this template. Follow these without exception unless the user explicitly overrides.
 
+## Always do this
+
+- Adopt a TDD approach when implementing new features
+- Use the grill me skill to ask questions when implementing a new feature
+- Never assume - always ask for clarity if uncertain
+- Never hardcode tokens, ARNs or any tenant identifying information in logs or code that will be committed (public repository)
+- Try to create reusable functions where possible
+
 ## New Endpoints
 
 - Whenever introducing a new endpoint, always update the bruno schemas to make sure it can be tested easily.
