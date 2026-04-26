@@ -7,6 +7,8 @@ const schema = z.object({
   SERVICE_NAME: z.string().min(1),
   UNIVERSE: z.enum(['development', 'staging', 'production']),
   CORS_ORIGINS: z.string().default('*'),
+  DATABASE_URL: z.string().min(1),
+  GOOGLE_CLIENT_ID: z.string().min(1),
 });
 
 const result = schema.safeParse(process.env);

@@ -10,3 +10,5 @@ coverage/
 !.vscode/extensions.json
 bruno/.env
 .idea/
+
+/src/generated/prisma

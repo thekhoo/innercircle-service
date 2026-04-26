@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserStatus {
+  PENDING_VERIFICATION
+  ACTIVE
+  LOCKED
+}
+
+model User {
+  id          String     @id @default(uuid())
+  googleId    String     @unique @map("google_id")
+  email       String     @unique
+  displayName String     @map("display_name")
+  avatarUrl   String?    @map("avatar_url")
+  username    String?    @unique
+  bio         String?
+  phoneNumber String?    @map("phone_number")
+  status       UserStatus @default(PENDING_VERIFICATION)
+  lastActiveAt DateTime?  @map("last_active_at")
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  @@map("users")
+}

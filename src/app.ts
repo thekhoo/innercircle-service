@@ -9,6 +9,7 @@ import { requestId } from './core/request-id.js';
 import { errorHandler, notFoundHandler } from './core/error-handler.js';
 import { createHealthRouter } from './features/health/routes.js';
 import { createHelloRouter } from './features/hello/routes.js';
+import { createUsersRouter } from './features/users/routes.js';
 
 export function buildApp() {
   const app = express();
@@ -40,6 +41,7 @@ export function buildApp() {
 
   app.use('/health', createHealthRouter());
   app.use('/hello', createHelloRouter());
+  app.use('/users', createUsersRouter());
 
   app.use(notFoundHandler);
   app.use(errorHandler);
