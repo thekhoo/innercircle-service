@@ -1,0 +1,15 @@
+meta {
+  name: Get User - Not Found (404)
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/users/nonexistent-google-id
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{googleToken}}
+}

@@ -1,0 +1,21 @@
+meta {
+  name: Update User Profile - Validation Error (400)
+  type: http
+  seq: 6
+}
+
+patch {
+  url: {{baseUrl}}/users/{{userId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{googleToken}}
+}
+
+body:json {
+  {
+    "username": "a!"
+  }
+}

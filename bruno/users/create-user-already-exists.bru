@@ -1,0 +1,15 @@
+meta {
+  name: Create User - Already Exists (409)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/users
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{googleToken}}
+}

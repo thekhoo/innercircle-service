@@ -1,0 +1,17 @@
+meta {
+  name: Update User Profile - Unauthorized (401)
+  type: http
+  seq: 7
+}
+
+patch {
+  url: {{baseUrl}}/users/{{userId}}
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "username": "janesmith"
+  }
+}

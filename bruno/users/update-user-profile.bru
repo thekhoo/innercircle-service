@@ -1,0 +1,23 @@
+meta {
+  name: Update User Profile (200)
+  type: http
+  seq: 5
+}
+
+patch {
+  url: {{baseUrl}}/users/{{userId}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{googleToken}}
+}
+
+body:json {
+  {
+    "username": "janesmith",
+    "bio": "Hello world",
+    "phoneNumber": "+61400000000"
+  }
+}
