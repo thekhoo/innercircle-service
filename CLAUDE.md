@@ -2,6 +2,10 @@
 
 Conventions and rules for Claude Code sessions in services built from this template. Follow these without exception unless the user explicitly overrides.
 
+## New Endpoints
+
+- Whenever introducing a new endpoint, always update the bruno schemas to make sure it can be tested easily.
+
 ## Layout
 
 - Add new routes as features under `src/features/<name>/`. Each feature is self-contained (routes, schemas, handler logic).
