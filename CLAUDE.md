@@ -9,6 +9,7 @@ Conventions and rules for Claude Code sessions in services built from this templ
 - Never assume - always ask for clarity if uncertain
 - Never hardcode tokens, ARNs or any tenant identifying information in logs or code that will be committed (public repository)
 - Try to create reusable functions where possible
+- Always run tests and linters after writing executable code
 
 ## New Endpoints
 
