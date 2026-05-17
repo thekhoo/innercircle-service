@@ -1,0 +1,114 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Shared ECR repository for storing Docker images of the service across all
+  environments. Lifecycle policy retains the last 10 production images, last 10
+  development images, and last 30 tagged images (commit-hash and other tags).
+  Untagged images expire after 1 day.
+
+Parameters:
+  ServiceName:
+    Type: String
+    Description: Service name — also used as the ECR repository name (e.g. innercircle-service)
+  Repository:
+    Type: String
+    Description: GitHub repository slug used as a tag (e.g. innercircle/innercircle-service)
+
+Resources:
+  ECRRepository:
+    Type: AWS::ECR::Repository
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      RepositoryName: !Ref Repository
+      ImageTagMutability: IMMUTABLE
+      ImageScanningConfiguration:
+        ScanOnPush: true
+      EncryptionConfiguration:
+        EncryptionType: AES256
+      LifecyclePolicy:
+        LifecyclePolicyText: |
+          {
+            "rules": [
+              {
+                "rulePriority": 1,
+                "description": "Expire untagged images after 1 day",
+                "selection": {
+                  "tagStatus": "untagged",
+                  "countType": "sinceImagePushed",
+                  "countUnit": "days",
+                  "countNumber": 1
+                },
+                "action": {
+                  "type": "expire"
+                }
+              },
+              {
+                "rulePriority": 2,
+                "description": "Keep last 10 production images (production- prefix)",
+                "selection": {
+                  "tagStatus": "tagged",
+                  "tagPrefixList": ["production-"],
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 10
+                },
+                "action": {
+                  "type": "expire"
+                }
+              },
+              {
+                "rulePriority": 3,
+                "description": "Keep last 10 development images (development- prefix)",
+                "selection": {
+                  "tagStatus": "tagged",
+                  "tagPrefixList": ["development-"],
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 10
+                },
+                "action": {
+                  "type": "expire"
+                }
+              },
+              {
+                "rulePriority": 4,
+                "description": "Keep last 30 tagged images (commit-hash tags and any unmatched)",
+                "selection": {
+                  "tagStatus": "tagged",
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 30
+                },
+                "action": {
+                  "type": "expire"
+                }
+              }
+            ]
+          }
+      Tags:
+        - Key: application
+          Value: innercircle
+        - Key: environment
+          Value: shared
+        - Key: service-name
+          Value: !Ref ServiceName
+        - Key: repository
+          Value: !Ref Repository
+        - Key: managed-by
+          Value: cloudformation
+        - Key: cloudformation-stack-name
+          Value: !Ref AWS::StackName
+
+Outputs:
+  RepositoryUri:
+    Description: Full ECR repository URI for docker push/pull
+    Value: !GetAtt ECRRepository.RepositoryUri
+    Export:
+      Name: !Sub ${AWS::StackName}-RepositoryUri
+  RepositoryName:
+    Description: ECR repository name
+    Value: !Ref ECRRepository
+    Export:
+      Name: !Sub ${AWS::StackName}-RepositoryName
+  RepositoryArn:
+    Description: ECR repository ARN
+    Value: !GetAtt ECRRepository.Arn
+    Export:
+      Name: !Sub ${AWS::StackName}-RepositoryArn

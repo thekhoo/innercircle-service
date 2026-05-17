@@ -1,0 +1,116 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >-
+  Service stack: Lambda (from ECR Docker image) fronted by an HTTP API Gateway,
+  with an explicit CloudWatch log group. Deployed per environment
+  (production / development). The Lambda image must declare a Lambda-compatible
+  handler via its own CMD (use the Lambda Runtime Interface Client in the image).
+
+Parameters:
+  Environment:
+    Type: String
+    AllowedValues:
+      - production
+      - development
+    Description: Deployment environment partition
+  ServiceName:
+    Type: String
+    Description: Service name (e.g. innercircle-service). Drives resource naming.
+  Repository:
+    Type: String
+    Description: GitHub repository slug used as a tag (e.g. innercircle/innercircle-service)
+  ImageUri:
+    Type: String
+    Description: >-
+      Full ECR image URI including tag, e.g.
+      020844256789.dkr.ecr.us-east-1.amazonaws.com/innercircle/innercircle-service:abc123
+
+Globals:
+  Function:
+    Tags:
+      application: innercircle
+      environment: !Ref Environment
+      service-name: !Ref ServiceName
+      repository: !Ref Repository
+      managed-by: cloudformation
+      cloudformation-stack-name: !Ref AWS::StackName
+
+Resources:
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${Environment}-${ServiceName}-api
+      RetentionInDays: 14
+      Tags:
+        - Key: application
+          Value: innercircle
+        - Key: environment
+          Value: !Ref Environment
+        - Key: service-name
+          Value: !Ref ServiceName
+        - Key: repository
+          Value: !Ref Repository
+        - Key: managed-by
+          Value: cloudformation
+        - Key: cloudformation-stack-name
+          Value: !Ref AWS::StackName
+
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 100
+        ThrottlingRateLimit: 50
+      Tags:
+        application: innercircle
+        environment: !Ref Environment
+        service-name: !Ref ServiceName
+        repository: !Ref Repository
+        managed-by: cloudformation
+        cloudformation-stack-name: !Ref AWS::StackName
+
+  Function:
+    Type: AWS::Serverless::Function
+    DependsOn: LogGroup
+    Properties:
+      FunctionName: !Sub ${Environment}-${ServiceName}-api
+      Description: !Sub ${ServiceName} HTTP API (${Environment})
+      PackageType: Image
+      ImageUri: !Ref ImageUri
+      Architectures:
+        - arm64
+      MemorySize: 1024
+      Timeout: 30
+      Environment:
+        Variables:
+          NODE_ENV: production
+          LOG_LEVEL: info
+          SERVICE_NAME: !Ref ServiceName
+          UNIVERSE: !Ref Environment
+          CORS_ORIGINS: '*'
+      Policies:
+        - SSMParameterReadPolicy:
+            ParameterName: !Sub ${Environment}/${ServiceName}/*
+      Events:
+        ProxyRoute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: ANY
+            Path: /{proxy+}
+        RootRoute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Method: ANY
+            Path: /
+
+Outputs:
+  ApiUrl:
+    Description: Base URL of the HTTP API
+    Value: !Sub https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com
+    Export:
+      Name: !Sub ${AWS::StackName}-ApiUrl
